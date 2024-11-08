@@ -7,7 +7,11 @@ import Text.Read (readMaybe)
 import System.Exit (exitFailure)
 
 -- definir o tipo Item
-data Item = Item {nome :: String, preco :: Int} deriving Show
+data Item = Item {
+	nome :: String, 
+	preco :: Int, 
+	duracao :: Int
+} deriving Show
 
 main :: IO ()
 main = do
@@ -56,7 +60,11 @@ adicionarItem itens = do
     precoStr <- getLine
     preco <- strToInt precoStr
 		-- TODO: não crashar o app
-    let novoItem = Item nome preco
+    putStr "Duração do item (dias): ";
+		hFlush stdout
+    duracaoStr <- getLine
+    duracao <- strToInt duracaoStr
+    let novoItem = Item nome preco duracao
     putStrLn "Item adicionado com sucesso!"
     menu (novoItem : itens)
 
@@ -67,7 +75,7 @@ listarItens [] = do
     menu []
 listarItens itens = do
     putStrLn "Itens no kit:"
-    mapM_ (\(i, Item nome preco) -> putStrLn (show i ++ ". " ++ nome ++ " - " ++ show preco ++ " pilas")) (zip [1..] itens)
+    mapM_ (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
     menu itens
 
 -- Remover um item do kit
@@ -77,7 +85,7 @@ removerItem [] = do
     menu []
 removerItem itens = do
     putStrLn "Itens no kit:"
-    mapM_ (\(i, Item nome preco) -> putStrLn (show i ++ ". " ++ nome ++ " - " ++ show preco ++ " pilas")) (zip [1..] itens)
+    mapM_ (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
     putStr "Digite o número do item a ser removido: ";
     hFlush stdout
     indiceStr <- getLine
@@ -95,5 +103,5 @@ removerItem itens = do
 calcularCusto :: [Item] -> IO ()
 calcularCusto itens = do
     let total = sum (map preco itens)
-    putStrLn ("Custo total do kit: " ++ show total ++ " créditos")
+    putStrLn ("Custo total do kit: " ++ show total ++ " pilas")
     menu itens
