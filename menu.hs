@@ -8,9 +8,9 @@ import System.Exit (exitFailure)
 
 -- definir o tipo Item
 data Item = Item {
-	nome :: String, 
-	preco :: Int, 
-	duracao :: Int
+  nome :: String, 
+  preco :: Int, 
+  duracao :: Int
 } deriving Show
 
 main :: IO ()
@@ -22,10 +22,14 @@ main = do
 -- string to int
 strToInt :: String -> IO Int
 strToInt  s = case readMaybe s of
-		Just n  -> return n
-		Nothing -> do
-				putStrLn "Erro: Número inválido"
-				exitFailure
+    Just n  -> return n
+    Nothing -> do
+        putStrLn "Erro: Número inválido"
+        exitFailure
+
+printItemList :: [Item] -> IO [()]
+printItemList itens = 
+    mapM (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
 
 -- o menu
 menu :: [Item] -> IO ()
@@ -35,16 +39,18 @@ menu itens = do
     putStrLn "2. Listar todos os itens no kit"
     putStrLn "3. Remover item do kit"
     putStrLn "4. Calcular custo total do kit"
-    putStrLn "5. Sair da aplicação"
+    putStrLn "5. Calcular duração do kit"
+    putStrLn "6. Sair da aplicação"
     putStr "Escolha uma opção: ";
-		hFlush stdout
+    hFlush stdout
     opcao <- getLine
     case opcao of
         "1" -> adicionarItem itens
         "2" -> listarItens itens
         "3" -> removerItem itens
         "4" -> calcularCusto itens
-        "5" -> putStrLn "Encerrando a aplicação. Até logo!"
+        "5" -> calcularDuracao itens
+        "6" -> putStrLn "Encerrando a aplicação. Até logo!"
         _   -> do
             putStrLn "Opção inválida. Tente novamente."
             menu itens
@@ -53,15 +59,15 @@ menu itens = do
 adicionarItem :: [Item] -> IO ()
 adicionarItem itens = do
     putStr "Nome do item: ";
-		hFlush stdout
+    hFlush stdout
     nome <- getLine
     putStr "Preço do item: ";
-		hFlush stdout
+    hFlush stdout
     precoStr <- getLine
     preco <- strToInt precoStr
-		-- TODO: não crashar o app
+    -- TODO: não crashar o app
     putStr "Duração do item (dias): ";
-		hFlush stdout
+    hFlush stdout
     duracaoStr <- getLine
     duracao <- strToInt duracaoStr
     let novoItem = Item nome preco duracao
@@ -75,7 +81,7 @@ listarItens [] = do
     menu []
 listarItens itens = do
     putStrLn "Itens no kit:"
-    mapM_ (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
+    printItemList itens
     menu itens
 
 -- Remover um item do kit
@@ -85,7 +91,7 @@ removerItem [] = do
     menu []
 removerItem itens = do
     putStrLn "Itens no kit:"
-    mapM_ (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
+    printItemList itens
     putStr "Digite o número do item a ser removido: ";
     hFlush stdout
     indiceStr <- getLine
@@ -105,3 +111,13 @@ calcularCusto itens = do
     let total = sum (map preco itens)
     putStrLn ("Custo total do kit: " ++ show total ++ " pilas")
     menu itens
+
+-- duração dos itens do kit
+-- se um item aparece mais de uma vez,
+-- sua duração é n * duração
+calcularDuracao :: [Item] -> IO ()
+calcularDuracao itens = do
+    :)
+    
+  
+
