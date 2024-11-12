@@ -65,6 +65,7 @@ adicionarItem itens = do
     hFlush stdout
     precoStr <- getLine
     preco <- strToInt precoStr
+    -- TODO: não crashar o app
     putStr "Duração do item (dias): ";
     hFlush stdout
     duracaoStr <- getLine
