@@ -1,4 +1,4 @@
--- Integrantes: Bruno Panizzi, Enzo Vivian, Gustavo Amaro, Natan Dias 
+-- Integrantes: Bruno Panizzi, Enzo Vivian, Gustavo Amaro, Natan Dias
 
 import System.IO
 import Text.Read (readMaybe)
@@ -7,8 +7,8 @@ import Data.List (groupBy)
 
 -- definir o tipo Item
 data Item = Item {
-  nome :: String, 
-  preco :: Int, 
+  nome :: String,
+  preco :: Int,
   duracao :: Int
 } deriving Show
 
@@ -17,16 +17,34 @@ main = do
     putStrLn "Bem-vindo ao Kit de Sobrevivência Espacial!"
     menu []
 
--- string to int
-strToInt :: String -> IO Int
-strToInt s = case readMaybe s of
-    Just n  -> return n
-    Nothing -> do
-        putStrLn "Erro: Número inválido"
-        exitFailure
+-- get string
+getString :: String -> IO String
+getString msg = do
+    putStr msg
+    hFlush stdout;
+    s <- getLine;
+    case length s of
+        0 -> do
+            putStrLn "String vazia. Tente novamente";
+            string <- getString msg;
+            return string
+        _ -> return s
+
+-- get int
+getInt :: String -> IO Int
+getInt msg = do
+    putStr msg
+    hFlush stdout;
+    s <- getLine;
+    case readMaybe s of
+        Just n  -> return n
+        Nothing -> do
+            putStrLn "Número inválido. Tente novamente";
+            int <- getInt msg;
+            return int
 
 printItemList :: [Item] -> IO [()]
-printItemList itens = 
+printItemList itens =
     mapM (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
 
 -- Menu
@@ -56,18 +74,9 @@ menu itens = do
 -- Adiciona item ao kit
 adicionarItem :: [Item] -> IO ()
 adicionarItem itens = do
-    putStr "Nome do item: ";
-    hFlush stdout
-    nome <- getLine
-    putStr "Preço do item: ";
-    hFlush stdout
-    precoStr <- getLine
-    preco <- strToInt precoStr
-    -- TODO: não crashar o app
-    putStr "Duração do item (dias): ";
-    hFlush stdout
-    duracaoStr <- getLine
-    duracao <- strToInt duracaoStr
+    nome <- getString "Nome do item: "
+    preco <- getInt "Preço do item (pilas): "
+    duracao <- getInt "Duração do item: "
     let novoItem = Item nome preco duracao
     putStrLn "Item adicionado com sucesso!"
     menu (novoItem : itens)
@@ -90,10 +99,7 @@ removerItem [] = do
 removerItem itens = do
     putStrLn "Itens no kit:"
     printItemList itens
-    putStr "Digite o número do item a ser removido: ";
-    hFlush stdout
-    indiceStr <- getLine
-    let indice = read indiceStr :: Int
+    indice <- getInt "Digite o número do item a ser removido: "
     if indice > 0 && indice <= length itens
         then do
             let novosItens = take (indice - 1) itens ++ drop indice itens
@@ -112,15 +118,18 @@ calcularCusto itens = do
 
 -- Duração dos itens do kit
 --
--- O cálculo da duração assume que todos os 
--- itens são consumidos em paralelo, exceto 
+-- O cálculo da duração assume que todos os
+-- itens são consumidos em paralelo, exceto
 -- pelos itens com o mesmo nome, que tem suas
 -- durações somadas
 --
--- Ex: 
--- calcularDuracao [ { água, 2, 1 }, { barraca, 100, 365 } ]
+-- Ex:
+-- calcularDuracao [ { "água", 2, 1 }, { "barraca", 100, 365 } ]
 -- deve retornar 1, pois a água acaba antes da barraca
 calcularDuracao :: [Item] -> IO ()
+calcularDuracao [] = do
+    putStrLn "O kit está vazio. Duração 0."
+    menu []
 calcularDuracao itens = do
     let totalDuracao = minimum $ map (\group -> duracao (head group) * length group) (groupBy (\a b -> nome a == nome b) itens)
     putStrLn ("Duração total do kit: " ++ show totalDuracao ++ " dias")
