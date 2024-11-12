@@ -1,7 +1,8 @@
--- Integrantes: Bruno Panizzi, Enzo Vivian, Gustavo Amaro
+-- Integrantes: Bruno Panizzi, Enzo Vivian, Gustavo Amaro, Natan Dias 
 --
 -- TODO: adicionar duração de cada item
--- e  calcular a duração total do kit
+-- e calcular a duração total do kit 
+
 import System.IO
 import Text.Read (readMaybe)
 import System.Exit (exitFailure)
@@ -18,10 +19,9 @@ main = do
     putStrLn "Bem-vindo ao Kit de Sobrevivência Espacial!"
     menu []
 
-
 -- string to int
 strToInt :: String -> IO Int
-strToInt  s = case readMaybe s of
+strToInt s = case readMaybe s of
     Just n  -> return n
     Nothing -> do
         putStrLn "Erro: Número inválido"
@@ -65,7 +65,6 @@ adicionarItem itens = do
     hFlush stdout
     precoStr <- getLine
     preco <- strToInt precoStr
-    -- TODO: não crashar o app
     putStr "Duração do item (dias): ";
     hFlush stdout
     duracaoStr <- getLine
@@ -117,7 +116,6 @@ calcularCusto itens = do
 -- sua duração é n * duração
 calcularDuracao :: [Item] -> IO ()
 calcularDuracao itens = do
-    :)
-    
-  
-
+    let totalDuracao = sum (map duracao itens)
+    putStrLn ("Duração total do kit: " ++ show totalDuracao ++ " dias")
+    menu itens
