@@ -1,11 +1,9 @@
 -- Integrantes: Bruno Panizzi, Enzo Vivian, Gustavo Amaro, Natan Dias 
---
--- TODO: adicionar duração de cada item
--- e calcular a duração total do kit 
 
 import System.IO
 import Text.Read (readMaybe)
 import System.Exit (exitFailure)
+import Data.List (groupBy)
 
 -- definir o tipo Item
 data Item = Item {
@@ -31,7 +29,7 @@ printItemList :: [Item] -> IO [()]
 printItemList itens = 
     mapM (\(i, item) -> putStrLn (show i ++ ". " ++ show item)) (zip [1..] itens)
 
--- o menu
+-- Menu
 menu :: [Item] -> IO ()
 menu itens = do
     putStrLn "\nMenu Principal:"
@@ -55,7 +53,7 @@ menu itens = do
             putStrLn "Opção inválida. Tente novamente."
             menu itens
 
--- add item ao kit
+-- Adiciona item ao kit
 adicionarItem :: [Item] -> IO ()
 adicionarItem itens = do
     putStr "Nome do item: ";
@@ -105,18 +103,25 @@ removerItem itens = do
             putStrLn "Índice inválido. Tente novamente."
             removerItem itens
 
--- custo total do kit
+-- Custo total do kit
 calcularCusto :: [Item] -> IO ()
 calcularCusto itens = do
     let total = sum (map preco itens)
     putStrLn ("Custo total do kit: " ++ show total ++ " pilas")
     menu itens
 
--- duração dos itens do kit
--- se um item aparece mais de uma vez,
--- sua duração é n * duração
+-- Duração dos itens do kit
+--
+-- O cálculo da duração assume que todos os 
+-- itens são consumidos em paralelo, exceto 
+-- pelos itens com o mesmo nome, que tem suas
+-- durações somadas
+--
+-- Ex: 
+-- calcularDuracao [ { água, 2, 1 }, { barraca, 100, 365 } ]
+-- deve retornar 1, pois a água acaba antes da barraca
 calcularDuracao :: [Item] -> IO ()
 calcularDuracao itens = do
-    let totalDuracao = sum (map duracao itens)
+    let totalDuracao = minimum $ map (\group -> duracao (head group) * length group) (groupBy (\a b -> nome a == nome b) itens)
     putStrLn ("Duração total do kit: " ++ show totalDuracao ++ " dias")
     menu itens
